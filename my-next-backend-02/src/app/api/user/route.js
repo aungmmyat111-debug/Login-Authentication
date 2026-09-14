@@ -1,22 +1,22 @@
 //src/app/api/user/route.js
 
-import corsHeaders from "@/lib/cors";
+import { getCorsHeaders } from "@/lib/cors";
 import { getClientPromise } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { isAdmin } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/utils";
 
-export async function OPTIONS() {
+export async function OPTIONS(request) {
   return new Response(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
 export async function GET(request) {
   if (!isAdmin(request)) {
-    return errorResponse("Unauthorized Request", 403);
+    return errorResponse("Unauthorized Request", 403, request);
   }
 
   const searchParams = request.nextUrl.searchParams;
@@ -40,17 +40,17 @@ export async function GET(request) {
       page: page,
       size: size,
     };
-    return successResponse(output, 201);
+    return successResponse(output, 201, request);
   } catch (error) {
     console.log("==>GET user exception");
     console.log(error);
   }
-  return NextResponse.json({});
+  return NextResponse.json({}, { headers: getCorsHeaders(request) });
 }
 
 export async function POST(request) {
   if (!isAdmin(request)) {
-    return errorResponse("Unauthorized Request", 403);
+    return errorResponse("Unauthorized Request", 403, request);
   }
   const data = await request.json();
   const username = data.username;
@@ -59,7 +59,7 @@ export async function POST(request) {
   const firstname = data.firstname;
   const lastname = data.lastname;
   if (!username || !email || !password) {
-    return errorResponse("Missing mandatory data", 400);
+    return errorResponse("Missing mandatory data", 400, request);
   }
 
   try {
@@ -74,7 +74,7 @@ export async function POST(request) {
       status: "ACTIVE",
     });
     console.log("==>Insert User Result:", result);
-    return successResponse({ id: result.insertedId }, 200);
+    return successResponse({ id: result.insertedId }, 200, request);
   } catch (error) {
     console.log("==>POST user exception");
     const errorResponseMessage = error.errorResponse.errmsg;
@@ -97,7 +97,7 @@ export async function POST(request) {
       },
       {
         status: 400,
-        headers: corsHeaders,
+        headers: getCorsHeaders(request),
       }
     );
   }

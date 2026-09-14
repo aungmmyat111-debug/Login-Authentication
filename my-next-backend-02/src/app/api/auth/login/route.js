@@ -1,7 +1,7 @@
 // src/app/api/auth/login/route.js
-import corsHeaders from "@/lib/cors";
+import { getCorsHeaders } from "@/lib/cors";
 import { getClientPromise } from "@/lib/mongodb";
-import { errorResponse } from "@/lib/utils";
+import { errorResponse, getCookieOptions } from "@/lib/utils";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
@@ -11,22 +11,22 @@ const adminUser = process.env.ADMIN_USER;
 const adminPass = process.env.ADMIN_PASS;
 const DB_NAME = process.env.DB_NAME;
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
+export async function OPTIONS(req) {
+  return NextResponse.json({}, { headers: getCorsHeaders(req) });
 }
 
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
     if (!email || !password) {
-      return errorResponse("Missing email or password", 400);
+      return errorResponse("Missing email or password", 400, req);
     }
 
     const admin = checkAdmin(email, password);
     const user = !admin ? await checkUser(email, password) : admin;
 
     if (!user) {
-      return errorResponse("Invalid email or password", 401);
+      return errorResponse("Invalid email or password", 401, req);
     }
 
     const token = jwt.sign(
@@ -37,21 +37,15 @@ export async function POST(req) {
 
     const response = NextResponse.json(
       { message: "Login successful", user },
-      { status: 200, headers: corsHeaders }
+      { status: 200, headers: getCorsHeaders(req) }
     );
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-      secure: process.env.NODE_ENV === "production",
-    });
+    response.cookies.set("token", token, getCookieOptions(req, { maxAge: 60 * 60 * 24 * 7 }));
 
     return response;
   } catch (error) {
     console.error("Login POST exception:", error);
-    return errorResponse("Internal server error", 500);
+    return errorResponse("Internal server error", 500, req);
   }
 }
 

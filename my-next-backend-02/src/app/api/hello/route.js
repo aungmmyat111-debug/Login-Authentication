@@ -1,20 +1,20 @@
-import corsHeaders from "@/lib/cors";
+import { getCorsHeaders } from "@/lib/cors";
 import { NextResponse } from "next/server";
 
 // Handle preflight OPTIONS requests
-export async function OPTIONS(req) {
+export async function OPTIONS(request) {
   return new Response(null, {
     status: 200,
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
 
-export async function GET() {
+export async function GET(request) {
   const message = {
     message: "hello world"
   };
 
   return NextResponse.json(message, {
-    headers: corsHeaders,
+    headers: getCorsHeaders(request),
   });
 }
