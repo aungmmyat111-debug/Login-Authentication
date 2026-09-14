@@ -16,7 +16,7 @@ import Tooltip from "@mui/material/Tooltip";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import { UserContext } from "./Context/UserContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function User() {
   const { user: loggedInUser } = useContext(UserContext);

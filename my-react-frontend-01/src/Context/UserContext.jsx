@@ -3,8 +3,9 @@
 import PropTypes from "prop-types";
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL)
+// Same-origin by default: /api/* is proxied in dev (vite.config.js) and
+// rewritten on Vercel (vercel.json) so auth cookies stay first-party.
+const API_URL = import.meta.env.VITE_API_URL || "";
 // eslint-disable-next-line react-refresh/only-export-components
 export const UserContext = createContext(null);
 

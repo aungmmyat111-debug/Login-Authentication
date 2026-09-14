@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 import { useContext, useEffect } from "react";
 import { UserContext } from "./Context/UserContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Home() {
   const navigate = useNavigate();
