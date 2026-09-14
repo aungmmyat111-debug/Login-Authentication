@@ -37,7 +37,9 @@ export default function Item() {
 
     async function fetchData() {
       try {
-        const res = await fetch(`${API_URL}/api/item`);
+        const res = await fetch(`${API_URL}/api/item`, {
+          credentials: "include",
+        });
         if (res.ok && !ignore) {
           const data = await res.json();
           setItems(data.itemList || []);
@@ -62,6 +64,7 @@ export default function Item() {
     try {
       const res = await fetch(`${API_URL}/api/item/${rowId}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (res.ok) {
@@ -113,6 +116,7 @@ export default function Item() {
     try {
       const res = await fetch(`${API_URL}/api/item`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
